@@ -9,6 +9,8 @@ const StoreProvider = ({ value = [], ...props}) => {
 // state is the most up-to-date version, dispatch is method we use update
     const [state, dispatch] = useProductReducer({
         products: [],
+        cart: [],
+        cartOpen: false,
         categories: [],
         currentCategory: '',
     });
