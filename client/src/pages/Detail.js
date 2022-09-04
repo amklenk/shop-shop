@@ -56,11 +56,18 @@ function Detail() {
         _id: id,
         purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
       });
+      // also update quantity for idb
+      idbPromise('cart', 'put', {
+        ...itemInCart,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });
     } else {
       dispatch({ 
         type: ADD_TO_CART,
         product: { ...currentProduct, purchaseQuantity: 1 }
       });
+      // if product isn't in cart yet because offline
+      idbPromise('cart', 'put', { ...currentProduct, purchaseQuantity: 1 });
     }
   };
 
@@ -69,6 +76,8 @@ function Detail() {
       type: REMOVE_FROM_CART,
       _id: currentProduct._id
     });
+    // upon removal, also remove from idb
+    idbPromise('cart', 'delete', { ...currentProduct });
   };
 
   return (
