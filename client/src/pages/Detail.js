@@ -11,6 +11,7 @@ import {
 import { QUERY_PRODUCTS } from '../utils/queries';
 import spinner from '../assets/spinner.gif';
 import Cart from '../components/Cart';
+import { idbPromise } from '../utils/helpers';
 
 function Detail() {
   const [state, dispatch] = useStoreContext();
@@ -25,13 +26,26 @@ function Detail() {
   useEffect(() => {
     if (products.length) {
       setCurrentProduct(products.find((product) => product._id === id));
-    } else if(data) {
+    } else if (data) {
       dispatch({
         type: UPDATE_PRODUCTS,
         products: data.products
       });
+
+      data.products.forEach((product) => {
+        idbPromise('products', 'put', product);
+      });
+    } else if (!loading) {
+      // get all data from `products` store 
+      idbPromise('products', 'get').then((indexedProducts) => {
+        // use retrieved data to set gloabl state for offline browsing
+        dispatch({
+          type: UPDATE_PRODUCTS,
+          products: indexedProducts
+        });
+      });
     }
-  }, [products, data, dispatch, id]);
+  }, [products, data, loading, dispatch, id]);
 
   const addToCart = () => {
     const itemInCart = cart.find((cartItem) => cartItem._id === id);
